@@ -1,0 +1,66 @@
+#include <ESP8266WiFi.h>
+#include <ESP8266HTTPClient.h>
+#include <ArduinoJson.h>
+
+const char* ssid = "IoT LAB";
+const char* password = "kvt1ptit";
+const char* serverUrl = "http://192.168.76.103:5000/api/data"; //check lai moi lan vi no thay doi lien tuc
+
+WiFiClient client;
+StaticJsonDocument<100> doc;
+
+void setup() {
+  Serial.begin(9600);
+  WiFi.begin(ssid, password);
+  
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("\nWiFi connected");
+  Serial.println("IP: " + WiFi.localIP().toString());
+}
+
+void loop() {
+  while (Serial.available() > 0) {
+    if (WiFi.status() != WL_CONNECTED) {
+      Serial.println("WiFi not connected");
+      delay(1000);
+      return;
+    }
+
+    HTTPClient http;
+    // Must match your Express route: POST /api/data on port 5000
+    http.begin(client, serverUrl);
+    http.addHeader("Content-Type", "application/json");
+
+    String data = Serial.readStringUntil('\n');
+    DeserializationError error = deserializeJson(doc, data);
+
+    if (error) {
+      Serial.print("JSON parse failed: ");
+      Serial.println(error.c_str());
+      http.end();
+      return;
+    }
+
+    if (doc.containsKey("data")) {
+      int brightness = doc["data"];
+      Serial.println(brightness);
+    }
+
+    String json;
+    serializeJson(doc, json);
+
+    int code = http.POST(json);
+    if (code < 0) {
+      Serial.println("Error: " + String(HTTPClient::errorToString(code)));
+    }
+    http.end();
+    delay(750);
+  }
+}
+
+
+
+
