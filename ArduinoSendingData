@@ -1,0 +1,19 @@
+#include <ArduinoJson.h>
+int LightPin = A0;
+int value = 0;
+
+StaticJsonDocument<100> doc;
+
+void setup() {
+  Serial.begin(9600);
+}
+
+void loop() {
+  value = analogRead(LightPin);
+  int brightness = map(value, 0, 1023, 0, 100);
+  int data = 100 - brightness;
+  doc["data"] = data;
+  serializeJson(doc, Serial);
+  Serial.println(brightness);
+  delay(1000);
+}
