@@ -4,7 +4,8 @@
 
 const char* ssid = "IoT LAB";
 const char* password = "kvt1ptit";
-const char* serverUrl = "http://192.168.76.103:5000/api/data"; //check lai moi lan vi no thay doi lien tuc
+const char* serverUrl = "http://192.168.76.103:5000/api/data"; //check lai moi lan vi no thay doi lien tuc (chay ipconfig tren cmd)
+
 
 WiFiClient client;
 StaticJsonDocument<100> doc;
